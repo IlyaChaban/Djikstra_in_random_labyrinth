@@ -2,19 +2,19 @@
 clc; clear; close all;
 %% Reading results
 data=textread('result.txt');
-%some information about the map and start point
+%Some information about the map and start point
 sizes=data(1,1:4);
 mWidth=sizes(1);
 mHeight=sizes(2);
 x_start=sizes(3)+1;
 y_start=sizes(4)+1;
 data=data(2,1:mWidth*mHeight);
-%picking up information about map
+%Picking up information about map
 map=textread('map.txt');
 map=map(1:mHeight*mWidth,1:mHeight*mWidth);
 counter=1;
 walls=[0,0];
-% pulling out information about the walls
+%Pulling out information about the walls
 for(i=1:mHeight*mWidth)
     for(j=1:mHeight*mWidth)
         if (map(i,j)==500)
@@ -88,7 +88,7 @@ I = imread('img.jpg');
 [A,B,C]=size(I);
 rectHeight=A/mHeight;
 rectWidth=B/mWidth;
-%drawing field
+%Drawing map
 figure(1)
 for (i=1:mHeight)
     for (j=1:mWidth)
@@ -99,7 +99,7 @@ for (i=1:mHeight)
           end
      end
 end
-%drawing walls
+%Drawing walls
 [walls_size,nothing]=size(walls);
 
 for (i=1:walls_size)
@@ -130,12 +130,12 @@ for (i=1:walls_size)
         
     end
 end
-%drawing the shortest path
+%Drawing the shortest path
 [D,E]=size(steps);
  for (i=1:(D-1))
      I =insertShape(I,'Line',[steps(i,1)*rectWidth-rectWidth/2 steps(i,2)*rectHeight-rectHeight/2 steps(i+1,1)*rectWidth-rectWidth/2 steps(i+1,2)*rectHeight-rectHeight/2 ],'LineWidth',5,"Color","blue");
      imshow(I);
-     %creating animation gif
+     %Creating animation gif
      filename='vysledek.gif';
      frame = getframe(1); 
       im = frame2im(frame); 
