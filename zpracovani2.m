@@ -1,20 +1,20 @@
-%% Dulezite procedury
+%% Important stuff
 clc; clear; close all;
-%% nacitani vysledku
+%% Reading results
 data=textread('result.txt');
-
+%some information about the map and start point
 sizes=data(1,1:4);
 mWidth=sizes(1);
 mHeight=sizes(2);
 x_start=sizes(3)+1;
 y_start=sizes(4)+1;
 data=data(2,1:mWidth*mHeight);
-
+%picking up information about map
 map=textread('map.txt');
 map=map(1:mHeight*mWidth,1:mHeight*mWidth);
 counter=1;
 walls=[0,0];
-
+% pulling out information about the walls
 for(i=1:mHeight*mWidth)
     for(j=1:mHeight*mWidth)
         if (map(i,j)==500)
@@ -24,20 +24,21 @@ for(i=1:mHeight*mWidth)
     end
 end
 
-%% konstanty
+%% Constants wich define exit from the maze
 x_exit=randi([1 mWidth],1,1);
 y_exit=randi([1 mHeight],1,1);
-%% zpracovani vysledku
+%% Formatting data to be comfortable to read
 data2=zeros(mHeight,mWidth);
 for (i=1:mHeight)
     for (j=1:mWidth)
         data2(i,j)=data(j+(i-1)*mWidth);
     end
 end
-%% alalyza nejkratsi cesty od konce k zacatku
+%% Analyze the shortest way out
 steps=[x_exit,y_exit];
 x_closer=x_exit;
 y_closer=y_exit;
+
 while (x_closer~=x_start)||(y_closer~=y_start)
     
     right=9999;
@@ -81,7 +82,7 @@ while (x_closer~=x_start)||(y_closer~=y_start)
     steps=[steps; x_closer,y_closer];        
 end
 
-%% vykresloavni vysledku
+%% Drawing result 
 I = imread('img.jpg');
 
 [A,B,C]=size(I);
@@ -112,25 +113,37 @@ for (i=1:walls_size)
     middle_wall_y= (((wall1y+wall2y))/2-1)*rectHeight;
     
     if(abs(walls(i,1)-walls(i,2))>1)
-        %%draw horizontal wall       
+        %draw horizontal wall       
         I =insertShape(I,'Line',[middle_wall_x ...
                                  middle_wall_y+0.5*rectHeight ...
                                  middle_wall_x+rectWidth ...
                                  middle_wall_y+0.5*rectHeight ...
-                                 ],'LineWidth',10,"Color","black");
+                                 ],'LineWidth',5,"Color","black");
         
     elseif(abs(walls(i,1)-walls(i,2))==1)
-        %%draw vertical wall
+        %draw vertical wall
         I =insertShape(I,'Line',[middle_wall_x+0.5*rectWidth ...
                                  middle_wall_y ...
                                  middle_wall_x+0.5*rectWidth ...
                                  middle_wall_y+rectHeight ...
-                                 ],'LineWidth',10,"Color","black");
+                                 ],'LineWidth',5,"Color","black");
         
     end
 end
+%drawing the shortest path
 [D,E]=size(steps);
  for (i=1:(D-1))
      I =insertShape(I,'Line',[steps(i,1)*rectWidth-rectWidth/2 steps(i,2)*rectHeight-rectHeight/2 steps(i+1,1)*rectWidth-rectWidth/2 steps(i+1,2)*rectHeight-rectHeight/2 ],'LineWidth',5,"Color","blue");
+     imshow(I);
+     %creating animation gif
+     filename='vysledek.gif';
+     frame = getframe(1); 
+      im = frame2im(frame); 
+      [imind,cm] = rgb2ind(im,256); 
+      % Write to the GIF File 
+      if i == 1 
+          imwrite(imind,cm,filename,'gif', 'Loopcount',inf); 
+      else 
+          imwrite(imind,cm,filename,'gif','WriteMode','append'); 
+      end 
  end
-imshow(I);
