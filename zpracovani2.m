@@ -1,11 +1,29 @@
 %% Dulezite procedury
 clc; clear; close all;
 %% nacitani vysledku
-data=textread('vysledek.txt');
-sizes=data(1,1:2);
+data=textread('result.txt');
+
+sizes=data(1,1:4);
 mWidth=sizes(1);
 mHeight=sizes(2);
+x_start=sizes(3)+1;
+y_start=sizes(4)+1;
 data=data(2,1:mWidth*mHeight);
+
+map=textread('map.txt');
+map=map(1:mHeight*mWidth,1:mHeight*mWidth);
+counter=1;
+walls=[0,0];
+
+for(i=1:mHeight*mWidth)
+    for(j=1:mHeight*mWidth)
+        if (map(i,j)==500)
+            walls(counter,:)=[i,j];
+            counter=counter+1;
+        end
+    end
+end
+
 %% konstanty
 x_exit=randi([1 mWidth],1,1);
 y_exit=randi([1 mHeight],1,1);
@@ -16,28 +34,27 @@ for (i=1:mHeight)
         data2(i,j)=data(j+(i-1)*mWidth);
     end
 end
-
 %% alalyza nejkratsi cesty od konce k zacatku
 steps=[x_exit,y_exit];
 x_closer=x_exit;
 y_closer=y_exit;
-while (y_closer~=1)||(x_closer~=1)
+while (x_closer~=x_start)||(y_closer~=y_start)
     
     right=9999;
     left=9999;
     top=9999;
     bottom=9999;
     
-    if (x_closer<mWidth)
+    if (x_closer<mWidth  && map((x_closer)+(y_closer-1)*mWidth,x_closer+1+(y_closer-1)*mWidth)~=500)
         right=data2(y_closer,x_closer+1);
     end
-    if (x_closer>1)
+    if (x_closer>1       && map(x_closer+(y_closer-1)*mWidth,x_closer-1+(y_closer-1)*mWidth)~=500)
         left=data2(y_closer,x_closer-1);
     end
-    if (y_closer<mHeight)
+    if (y_closer<mHeight && map(x_closer+(y_closer-1)*mWidth,x_closer+((y_closer-1)+1)*mWidth)~=500)
         top=data2(y_closer+1,x_closer);
     end
-    if (y_closer>1)
+    if (y_closer>1       && map(x_closer+(y_closer-1)*mWidth,x_closer+(y_closer-1-1)*mWidth)~=500)
         bottom=data2(y_closer-1,x_closer);
     end
     
@@ -70,25 +87,50 @@ I = imread('img.jpg');
 [A,B,C]=size(I);
 rectHeight=A/mHeight;
 rectWidth=B/mWidth;
-
+%drawing field
 figure(1)
 for (i=1:mHeight)
     for (j=1:mWidth)
           if j==x_exit && i==y_exit
               I =insertShape(I,'FilledRectangle',[(j-1)*rectWidth (i-1)*rectHeight rectWidth rectHeight],'LineWidth',5,"Color","red");
-          elseif i==1 && j==1
+          elseif i==y_start && j==x_start
               I =insertShape(I,'FilledRectangle',[(j-1)*rectWidth (i-1)*rectHeight rectWidth rectHeight],'LineWidth',5,"Color","green");
-          elseif data2(i,j)>=500
-              I =insertShape(I,'FilledRectangle',[(j-1)*rectWidth (i-1)*rectHeight rectWidth rectHeight],'LineWidth',5,"Color","black");
-          else
-              I =insertShape(I,'Rectangle',[(j-1)*rectWidth (i-1)*rectHeight rectWidth rectHeight],'LineWidth',5,"Color","black");
           end
      end
 end
+%drawing walls
+[walls_size,nothing]=size(walls);
 
- [D,E]=size(steps);
+for (i=1:walls_size)
+    wall1=coordinate_transformation(walls(i,1),mWidth);
+    wall1x=wall1(1);
+    wall1y=wall1(2);
+    wall2=coordinate_transformation(walls(i,2),mWidth);
+    wall2x=wall2(1);
+    wall2y=wall2(2);
+    middle_wall_x= (((wall1x+wall2x))/2-1)*rectWidth;
+    middle_wall_y= (((wall1y+wall2y))/2-1)*rectHeight;
+    
+    if(abs(walls(i,1)-walls(i,2))>1)
+        %%draw horizontal wall       
+        I =insertShape(I,'Line',[middle_wall_x ...
+                                 middle_wall_y+0.5*rectHeight ...
+                                 middle_wall_x+rectWidth ...
+                                 middle_wall_y+0.5*rectHeight ...
+                                 ],'LineWidth',10,"Color","black");
+        
+    elseif(abs(walls(i,1)-walls(i,2))==1)
+        %%draw vertical wall
+        I =insertShape(I,'Line',[middle_wall_x+0.5*rectWidth ...
+                                 middle_wall_y ...
+                                 middle_wall_x+0.5*rectWidth ...
+                                 middle_wall_y+rectHeight ...
+                                 ],'LineWidth',10,"Color","black");
+        
+    end
+end
+[D,E]=size(steps);
  for (i=1:(D-1))
      I =insertShape(I,'Line',[steps(i,1)*rectWidth-rectWidth/2 steps(i,2)*rectHeight-rectHeight/2 steps(i+1,1)*rectWidth-rectWidth/2 steps(i+1,2)*rectHeight-rectHeight/2 ],'LineWidth',5,"Color","blue");
  end
-
 imshow(I);
