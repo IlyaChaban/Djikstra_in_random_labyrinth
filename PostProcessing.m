@@ -81,7 +81,6 @@ while (x_closer~=x_start)||(y_closer~=y_start)
     
     steps=[steps; x_closer,y_closer];        
 end
-
 %% Drawing result 
 I = imread('img.jpg');
 
@@ -90,6 +89,7 @@ rectHeight=A/mHeight;
 rectWidth=B/mWidth;
 %Drawing map
 figure(1)
+I =insertShape(I,'Rectangle',[2 2 A-2 B-2],'LineWidth',5,"Color","black");
 for (i=1:mHeight)
     for (j=1:mWidth)
           if j==x_exit && i==y_exit
@@ -126,17 +126,21 @@ for (i=1:walls_size)
                                  middle_wall_y ...
                                  middle_wall_x+0.5*rectWidth ...
                                  middle_wall_y+rectHeight ...
-                                 ],'LineWidth',5,"Color","black");
-        
+                                 ],'LineWidth',5,"Color","black");        
     end
 end
 %Drawing the shortest path
 [D,E]=size(steps);
  for (i=1:(D-1))
-     I =insertShape(I,'Line',[steps(i,1)*rectWidth-rectWidth/2 steps(i,2)*rectHeight-rectHeight/2 steps(i+1,1)*rectWidth-rectWidth/2 steps(i+1,2)*rectHeight-rectHeight/2 ],'LineWidth',5,"Color","blue");
+     I =insertShape(I,'Line',[steps(i,1)*rectWidth-rectWidth/2 ...
+                              steps(i,2)*rectHeight-rectHeight/2 ...
+                              steps(i+1,1)*rectWidth-rectWidth/2 ...
+                              steps(i+1,2)*rectHeight-rectHeight/2 ...
+                              ],'LineWidth',5,"Color","blue");
+     pause(0.001);
      imshow(I);
-     %Creating animation gif
-     filename='vysledek.gif';
+     %Creating animated gif
+     filename='result.gif';
      frame = getframe(1); 
       im = frame2im(frame); 
       [imind,cm] = rgb2ind(im,256); 
@@ -147,3 +151,4 @@ end
           imwrite(imind,cm,filename,'gif','WriteMode','append'); 
       end 
  end
+imshow(I);

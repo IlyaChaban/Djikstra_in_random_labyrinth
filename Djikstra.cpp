@@ -24,10 +24,10 @@ int minimumDist(int dist[], int visit[], int size) {
 int main() {
 
 // Constants
-	int mHeight=25;
-	int mWidth=25;
-	int x_start_point=2;
-	int y_start_point=2;
+	int mHeight=20;
+	int mWidth=20;
+	int x_start_point=12;
+	int y_start_point=12;
 	int wall=500;
 	int connection=1;
 // Checking that uset inputed coordinates wich is inside the borders
